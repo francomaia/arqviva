@@ -1,0 +1,9 @@
+# Vídeos originais — acima do limite de 100 MB por arquivo do GitHub.
+# Mantidos fora do repositório; ver README (hospedar no YouTube/Vimeo/Panda ou usar Git LFS).
+assets/video/
+*.mp4
+
+# Sistema
+.DS_Store
+Thumbs.db
+.claude/
