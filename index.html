@@ -6,8 +6,8 @@
   <title>Arquitetando Processos | ArqViva – Bethânia Filizzola</title>
   <meta name="description" content="Para quem quer sair do improviso e transformar seu escritório artesanal em empresarial. Curso Arquitetando Processos, por Bethânia Filizzola (ArqViva).">
   <link rel="icon" href="assets/svg/icon-dark.svg" type="image/svg+xml">
-  <link rel="preload" href="assets/fonts/CasagrandeCasabau-Bold.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="preload" href="assets/fonts/Raleway-Medium.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="assets/fonts/CasagrandeCasabau-Bold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/Raleway-Medium.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -36,9 +36,9 @@
         <p class="hero-sub">Bethânia Filizzola - Fundadora do ArqViva</p>
       </div>
       <div class="hero-video" data-load="video">
-        <div class="video-box" data-video="assets/video/vsl.mp4">
-          <video playsinline preload="metadata" poster="assets/img/vsl-poster.jpg">
-            <source src="assets/video/vsl.mp4" type="video/mp4">
+        <div class="video-box" data-video="assets/video/compressed/vsl.mp4">
+          <video playsinline preload="none" poster="assets/img/vsl-poster.jpg">
+            <source src="assets/video/compressed/vsl.mp4" type="video/mp4">
           </video>
           <button class="play-btn" aria-label="Assistir ao vídeo">
             <img src="assets/svg/play.svg" alt="">
@@ -73,7 +73,7 @@
           </ul>
         </div>
         <div class="realidade-photo" data-reveal="right" data-delay="150" data-parallax="-24">
-          <img src="assets/img/realidade.jpg" alt="Arquiteta sobrecarregada trabalhando sozinha">
+          <img src="assets/img/realidade.jpg" alt="Arquiteta sobrecarregada trabalhando sozinha" loading="lazy" decoding="async">
         </div>
       </div>
       <p class="quote quote-light" data-text="words" data-delay="100">‘‘Crescer sem processo <strong>custa caro em tempo, dinheiro e energia.</strong>’’</p>
@@ -85,7 +85,7 @@
     <div class="container">
       <div class="card card-wine transformacao-card" data-reveal="up">
         <div class="transformacao-photo" data-reveal="left" data-delay="150" data-parallax="-24">
-          <img src="assets/img/transformacao.jpg" alt="Bethânia Filizzola organizando materiais de projeto">
+          <img src="assets/img/transformacao.jpg" alt="Bethânia Filizzola organizando materiais de projeto" loading="lazy" decoding="async">
         </div>
         <div class="transformacao-text" data-stagger>
           <span class="eyebrow eyebrow-white">A TRANSFORMAÇÃO</span>
@@ -131,7 +131,7 @@
         <h2 class="display quem-title" data-reveal="left" data-delay="150">QUEM ENSINA</h2>
         <div class="quem-grid">
           <div class="quem-photo" data-reveal="clip" data-delay="200">
-            <img src="assets/img/bethania.jpg" alt="Bethânia Filizzola">
+            <img src="assets/img/bethania.jpg" alt="Bethânia Filizzola" loading="lazy" decoding="async">
           </div>
           <div class="quem-text" data-stagger data-delay="300">
             <p class="quem-name"><span class="n1">Bethânia</span> <span class="n2">FILIZZOLA</span></p>
@@ -174,15 +174,15 @@
       <h2 class="section-title center" data-text="words" data-delay="80">Quem já aplicou,<br><span class="display">conta como foi</span></h2>
 
       <div class="provas-grid" data-stagger data-stagger-step="180" data-delay="150">
-        <div class="video-box video-vert" data-video="assets/video/prova-1.mp4">
-          <video playsinline preload="metadata" poster="assets/img/prova-maria.jpg">
-            <source src="assets/video/prova-1.mp4" type="video/mp4">
+        <div class="video-box video-vert" data-video="assets/video/compressed/prova-1.mp4">
+          <video playsinline preload="none" poster="assets/img/prova-maria.jpg">
+            <source src="assets/video/compressed/prova-1.mp4" type="video/mp4">
           </video>
           <button class="play-btn" aria-label="Assistir depoimento de Maria Paula"><img src="assets/svg/play.svg" alt=""></button>
         </div>
-        <div class="video-box video-vert" data-video="assets/video/prova-2.mp4">
-          <video playsinline preload="metadata" poster="assets/img/prova-mara.jpg">
-            <source src="assets/video/prova-2.mp4" type="video/mp4">
+        <div class="video-box video-vert" data-video="assets/video/compressed/prova-2.mp4">
+          <video playsinline preload="none" poster="assets/img/prova-mara.jpg">
+            <source src="assets/video/compressed/prova-2.mp4" type="video/mp4">
           </video>
           <button class="play-btn" aria-label="Assistir depoimento de Mara Simões"><img src="assets/svg/play.svg" alt=""></button>
         </div>

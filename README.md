@@ -9,7 +9,7 @@ Site estático, sem dependências. Basta abrir `index.html` ou publicar a pasta 
 - `assets/fonts/` – Casagrande Casabau e Raleway
 - `assets/img/` – fotos recortadas do projeto
 - `assets/svg/` – logo, ícones, padrão geométrico de fundo, WhatsApp, Aurora
-- `assets/video/` – VSL e provas sociais (**não versionados**, ver abaixo)
+- `assets/video/compressed/` – VSL e provas sociais otimizados em H.264/AAC
 
 ## O que ajustar antes de publicar
 Em `assets/script.js`, no topo, edite o objeto `LINKS`:
@@ -18,15 +18,15 @@ Em `assets/script.js`, no topo, edite o objeto `LINKS`:
 - `whatsapp` – número no formato `https://wa.me/55DDDNUMERO`
 
 ## Vídeos
-Os arquivos de `assets/video/` **não estão no repositório**: o GitHub limita cada arquivo a 100 MB e a VSL tem ≈ 970 MB (as provas, ≈ 120 MB e 200 MB). Para rodar o site completo, copie os três `.mp4` para `assets/video/`:
+O site usa as cópias H.264/AAC em `assets/video/compressed/`, incluídas no repositório. Os três arquivos originais em `assets/video/` são preservados localmente e ignorados pelo Git. Os vídeos começam a carregar apenas quando o visitante inicia a reprodução.
 
 ```
-assets/video/vsl.mp4
-assets/video/prova-1.mp4
-assets/video/prova-2.mp4
+assets/video/compressed/vsl.mp4
+assets/video/compressed/prova-1.mp4
+assets/video/compressed/prova-2.mp4
 ```
 
-Antes de publicar, comprima (ex.: HandBrake, 1080p H.264) ou hospede no YouTube/Vimeo/Panda Video e troque as tags `<video>` pelo player do serviço.
+As fontes WOFF2 são usadas primeiro, com os TTF originais mantidos como alternativa.
 
 ## Animações
 Todas são feitas em CSS + JS puro, sem bibliotecas, e ficam ativas por padrão:

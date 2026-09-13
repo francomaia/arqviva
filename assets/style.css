@@ -3,16 +3,16 @@
    Cores e tipografia extraídas do projeto (LP- ArqViva.pdf)
    ============================================================ */
 
-@font-face { font-family: "Casagrande"; src: url("fonts/CasagrandeCasabau-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
-@font-face { font-family: "Casagrande"; src: url("fonts/CasagrandeCasabau-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
-@font-face { font-family: "Casagrande"; src: url("fonts/CasagrandeCasabau-ExtraBold.ttf") format("truetype"); font-weight: 800; font-display: swap; }
-@font-face { font-family: "Casagrande"; src: url("fonts/CasagrandeCasabau-Heavy.ttf") format("truetype"); font-weight: 900; font-display: swap; }
+@font-face { font-family: "Casagrande"; src: url("fonts/CasagrandeCasabau-Regular.woff2") format("woff2"), url("fonts/CasagrandeCasabau-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Casagrande"; src: url("fonts/CasagrandeCasabau-Bold.woff2") format("woff2"), url("fonts/CasagrandeCasabau-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Casagrande"; src: url("fonts/CasagrandeCasabau-ExtraBold.woff2") format("woff2"), url("fonts/CasagrandeCasabau-ExtraBold.ttf") format("truetype"); font-weight: 800; font-display: swap; }
+@font-face { font-family: "Casagrande"; src: url("fonts/CasagrandeCasabau-Heavy.woff2") format("woff2"), url("fonts/CasagrandeCasabau-Heavy.ttf") format("truetype"); font-weight: 900; font-display: swap; }
 
-@font-face { font-family: "Raleway"; src: url("fonts/Raleway-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
-@font-face { font-family: "Raleway"; src: url("fonts/Raleway-Medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
-@font-face { font-family: "Raleway"; src: url("fonts/Raleway-SemiBold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
-@font-face { font-family: "Raleway"; src: url("fonts/Raleway-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
-@font-face { font-family: "Raleway"; src: url("fonts/Raleway-ExtraBold.ttf") format("truetype"); font-weight: 800; font-display: swap; }
+@font-face { font-family: "Raleway"; src: url("fonts/Raleway-Regular.woff2") format("woff2"), url("fonts/Raleway-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Raleway"; src: url("fonts/Raleway-Medium.woff2") format("woff2"), url("fonts/Raleway-Medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Raleway"; src: url("fonts/Raleway-SemiBold.woff2") format("woff2"), url("fonts/Raleway-SemiBold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Raleway"; src: url("fonts/Raleway-Bold.woff2") format("woff2"), url("fonts/Raleway-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Raleway"; src: url("fonts/Raleway-ExtraBold.woff2") format("woff2"), url("fonts/Raleway-ExtraBold.ttf") format("truetype"); font-weight: 800; font-display: swap; }
 
 :root {
   --wine: #330000;
@@ -37,7 +37,7 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; overflow-x: hidden; }
 html.smooth { scroll-behavior: auto; } /* o JS assume a rolagem com inércia */
 body {
   font-family: var(--font-body);

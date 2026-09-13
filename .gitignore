@@ -1,7 +1,8 @@
-# Vídeos originais — acima do limite de 100 MB por arquivo do GitHub.
-# Mantidos fora do repositório; ver README (hospedar no YouTube/Vimeo/Panda ou usar Git LFS).
-assets/video/
+# Vídeos originais preservados localmente; apenas cópias otimizadas são versionadas.
 *.mp4
+!assets/video/compressed/vsl.mp4
+!assets/video/compressed/prova-1.mp4
+!assets/video/compressed/prova-2.mp4
 
 # Sistema
 .DS_Store

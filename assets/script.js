@@ -48,8 +48,9 @@
   ];
   const track = document.getElementById("carousel-track");
   const carousel = document.getElementById("carousel");
-  const REPEAT = 4;                       // cópias para o loop infinito
+  const REPEAT = 3;                       // uma cópia visível e uma de cada lado
   const cards = [];
+  const fragment = document.createDocumentFragment();
   for (let r = 0; r < REPEAT; r++) {
     MODULES.forEach(function (m) {
       const card = document.createElement("div");
@@ -63,45 +64,54 @@
         const r = card.getBoundingClientRect(), c = carousel.getBoundingClientRect();
         boost += (r.left + r.width / 2) - (c.left + c.width / 2);   // traz o card ao centro
       });
-      track.appendChild(card); cards.push(card);
+      fragment.appendChild(card); cards.push(card);
     });
   }
+  track.appendChild(fragment);
 
   let offset = 0, boost = 0, speed = REDUCED ? 0 : 52, speedFactor = 1, targetFactor = 1;
-  let last = performance.now(), setWidth = 0, carouselWidth = 0, cardCenters = [], activeCard = null, dragged = false;
+  let last = performance.now(), setWidth = 0, carouselWidth = 0, firstCenter = 0, cardStep = 0;
+  let activeCard = null, dragged = false, visible = false, frameId = null;
   function measure() {
     setWidth = cards[MODULES.length].offsetLeft - cards[0].offsetLeft;
-    cardCenters = cards.map(function (card) { return card.offsetLeft + card.offsetWidth / 2; });
+    cardStep = setWidth / MODULES.length;
+    firstCenter = cards[0].offsetLeft + cards[0].offsetWidth / 2;
     // Começa na segunda cópia, com cards disponíveis dos dois lados.
     carouselWidth = carousel.getBoundingClientRect().width;
     const centerCard = cards[MODULES.length + 2];
     offset = centerCard.offsetLeft + centerCard.offsetWidth / 2 - carouselWidth / 2;
   }
   function frame(now) {
+    frameId = null;
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
     speedFactor += (targetFactor - speedFactor) * 0.08;
     offset += speed * speedFactor * dt;
     if (Math.abs(boost) > 0.3) { const step = boost * 0.11; offset += step; boost -= step; } else boost = 0;
     if (setWidth) { while (offset >= setWidth * 2) offset -= setWidth; while (offset < setWidth) offset += setWidth; }
     track.style.transform = "translate3d(" + (-offset).toFixed(2) + "px,0,0)";
-    // Mede as posições apenas no resize; não força layout a cada frame.
+    // Os cards têm largura fixa; o índice central não precisa medir o DOM a cada frame.
     const mid = offset + carouselWidth / 2;
-    let bestIndex = 0, bestD = Infinity;
-    cardCenters.forEach(function (center, index) {
-      const d = Math.abs(center - mid);
-      if (d < bestD) { bestD = d; bestIndex = index; }
-    });
+    const bestIndex = Math.max(0, Math.min(cards.length - 1, Math.round((mid - firstCenter) / cardStep)));
     if (activeCard !== cards[bestIndex]) {
       if (activeCard) activeCard.classList.remove("active");
       activeCard = cards[bestIndex];
       activeCard.classList.add("active");
     }
-    requestAnimationFrame(frame);
+    if (visible) frameId = requestAnimationFrame(frame);
+  }
+  function startFrame() {
+    if (frameId === null) { last = performance.now(); frameId = requestAnimationFrame(frame); }
   }
   measure();
   window.addEventListener("resize", measure);
   window.addEventListener("load", measure);
-  requestAnimationFrame(frame);
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      visible = entries[0].isIntersecting;
+      if (visible) startFrame();
+      else if (frameId !== null) { cancelAnimationFrame(frameId); frameId = null; }
+    }, { rootMargin: "120px" }).observe(carousel);
+  } else { visible = true; startFrame(); }
 
   carousel.addEventListener("mouseenter", function () { targetFactor = 0; });
   carousel.addEventListener("mouseleave", function () { targetFactor = 1; });
@@ -273,12 +283,22 @@
   /* ---------- Botão voltar ao topo + header compacto ---------- */
   const topBtn = document.getElementById("btn-top");
   const header = document.querySelector(".header");
-  function onScroll() {
-    topBtn.classList.toggle("show", window.scrollY > 600);
-    header.classList.toggle("is-scrolled", window.scrollY > 80);
+  let bar = null, scrollFrame = null;
+  function updateScrollUI() {
+    scrollFrame = null;
+    const y = window.scrollY;
+    topBtn.classList.toggle("show", y > 600);
+    header.classList.toggle("is-scrolled", y > 80);
+    if (bar) {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.transform = "scaleX(" + (max > 0 ? y / max : 0) + ")";
+    }
   }
-  window.addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
+  function queueScrollUI() {
+    if (scrollFrame === null) scrollFrame = requestAnimationFrame(updateScrollUI);
+  }
+  window.addEventListener("scroll", queueScrollUI, { passive: true });
+  updateScrollUI();
 
   /* ---------- FAQ: abre/fecha com altura animada e fecha os outros ---------- */
   document.querySelectorAll(".faq-item").forEach(function (d) {
@@ -430,11 +450,13 @@
     }, { rootMargin: "0px 0px -8% 0px", threshold: 0.1 });
     revealEls.forEach(function (el) { io.observe(el); });
     /* no fim da página (rodapé), revela tudo que ainda restar */
-    window.addEventListener("scroll", function () {
+    function revealAtBottom() {
       if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 4) {
         revealEls.forEach(function (el) { if (!el.classList.contains("is-in")) { show(el); io.unobserve(el); } });
+        window.removeEventListener("scroll", revealAtBottom);
       }
-    }, { passive: true });
+    }
+    window.addEventListener("scroll", revealAtBottom, { passive: true });
     /* segurança: nada fica escondido se algo falhar */
     setTimeout(function () {
       revealEls.forEach(function (el) {
@@ -447,19 +469,19 @@
   }
 
   /* Parallax sutil nas fotos dos cards */
-  const parallaxEls = Array.prototype.slice.call(document.querySelectorAll("[data-parallax]"));
+  const parallaxEls = Array.prototype.map.call(document.querySelectorAll("[data-parallax]"), function (el) {
+    return { element: el, image: el.querySelector("img"), amount: +el.dataset.parallax || -20 };
+  });
   if (parallaxEls.length && !REDUCED && window.matchMedia("(min-width: 761px)").matches) {
     let ticking = false;
     function parallax() {
       ticking = false;
       const vh = window.innerHeight;
-      parallaxEls.forEach(function (el) {
-        const r = el.getBoundingClientRect();
+      parallaxEls.forEach(function (item) {
+        const r = item.element.getBoundingClientRect();
         if (r.bottom < 0 || r.top > vh) return;
         const center = (r.top + r.height / 2 - vh / 2) / vh; // -0.5 .. 0.5
-        const amount = +el.dataset.parallax || -20;
-        const img = el.querySelector("img");
-        if (img) img.style.transform = "translate3d(0," + (center * amount * 2).toFixed(1) + "px,0)";
+        if (item.image) item.image.style.transform = "translate3d(0," + (center * item.amount * 2).toFixed(1) + "px,0)";
       });
     }
     window.addEventListener("scroll", function () {
@@ -469,13 +491,9 @@
   }
 
   /* ---------- Barra de progresso de leitura ---------- */
-  const bar = document.createElement("div");
+  bar = document.createElement("div");
   bar.className = "scroll-progress"; document.body.appendChild(bar);
-  function updateBar() {
-    const max = document.documentElement.scrollHeight - window.innerHeight;
-    bar.style.transform = "scaleX(" + (max > 0 ? window.scrollY / max : 0) + ")";
-  }
-  window.addEventListener("scroll", updateBar, { passive: true }); updateBar();
+  updateScrollUI();
 
   /* ---------- Brilho que acompanha o cursor (desktop) ---------- */
   if (!REDUCED && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
