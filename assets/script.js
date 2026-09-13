@@ -4,8 +4,30 @@
 (function () {
   "use strict";
 
+  const OS_REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const motionParam = new URLSearchParams(window.location.search).get("animacoes");
+  let savedMotion = null;
+  try { savedMotion = localStorage.getItem("arqviva-motion"); } catch (e) { /* arquivo local sem storage */ }
+  const motionEnabled = motionParam === "on" || (motionParam !== "off" && savedMotion === "on");
+  const REDUCED = OS_REDUCED && !motionEnabled;
   document.documentElement.classList.add("js");
-  const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (motionEnabled) document.documentElement.classList.add("motion-on");
+
+  if (OS_REDUCED) {
+    const motionToggle = document.createElement("button");
+    motionToggle.type = "button";
+    motionToggle.className = "motion-toggle";
+    motionToggle.textContent = motionEnabled ? "Reduzir animações" : "Ativar animações";
+    motionToggle.setAttribute("aria-pressed", String(motionEnabled));
+    motionToggle.addEventListener("click", function () {
+      const next = !motionEnabled;
+      try { localStorage.setItem("arqviva-motion", next ? "on" : "off"); } catch (e) { /* URL mantém a escolha */ }
+      const url = new URL(window.location.href);
+      url.searchParams.set("animacoes", next ? "on" : "off");
+      window.location.assign(url.toString());
+    });
+    document.body.appendChild(motionToggle);
+  }
 
   /* ---------- Links configuráveis ---------- */
   const LINKS = {
@@ -67,31 +89,35 @@
     });
   }
 
-  let offset = 0, boost = 0, speed = REDUCED ? 0 : 26, speedFactor = 1, targetFactor = 1;
-  let last = performance.now(), setWidth = 0, dragged = false;
+  let offset = 0, boost = 0, speed = REDUCED ? 0 : 52, speedFactor = 1, targetFactor = 1;
+  let last = performance.now(), setWidth = 0, carouselWidth = 0, cardCenters = [], activeCard = null, dragged = false;
   function measure() {
-    const gap = parseFloat(getComputedStyle(track).gap) || 0;
-    setWidth = 0;
-    for (let k = 0; k < MODULES.length; k++) setWidth += cards[k].offsetWidth + gap;
-    // começa com o 3º módulo (Setorização) no centro
-    const c = carousel.getBoundingClientRect();
-    offset = (cards[2].offsetLeft + cards[2].offsetWidth / 2) - c.width / 2;
+    setWidth = cards[MODULES.length].offsetLeft - cards[0].offsetLeft;
+    cardCenters = cards.map(function (card) { return card.offsetLeft + card.offsetWidth / 2; });
+    // Começa na segunda cópia, com cards disponíveis dos dois lados.
+    carouselWidth = carousel.getBoundingClientRect().width;
+    const centerCard = cards[MODULES.length + 2];
+    offset = centerCard.offsetLeft + centerCard.offsetWidth / 2 - carouselWidth / 2;
   }
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
     speedFactor += (targetFactor - speedFactor) * 0.08;
     offset += speed * speedFactor * dt;
     if (Math.abs(boost) > 0.3) { const step = boost * 0.11; offset += step; boost -= step; } else boost = 0;
-    if (setWidth) { while (offset >= setWidth) offset -= setWidth; while (offset < 0) offset += setWidth; }
+    if (setWidth) { while (offset >= setWidth * 2) offset -= setWidth; while (offset < setWidth) offset += setWidth; }
     track.style.transform = "translate3d(" + (-offset).toFixed(2) + "px,0,0)";
-    // card mais próximo do centro = ativo
-    const c = carousel.getBoundingClientRect(); const mid = c.left + c.width / 2;
-    let best = null, bestD = Infinity;
-    cards.forEach(function (card) {
-      const r = card.getBoundingClientRect(); const d = Math.abs(r.left + r.width / 2 - mid);
-      if (d < bestD) { bestD = d; best = card; }
+    // Mede as posições apenas no resize; não força layout a cada frame.
+    const mid = offset + carouselWidth / 2;
+    let bestIndex = 0, bestD = Infinity;
+    cardCenters.forEach(function (center, index) {
+      const d = Math.abs(center - mid);
+      if (d < bestD) { bestD = d; bestIndex = index; }
     });
-    cards.forEach(function (card) { card.classList.toggle("active", card === best); });
+    if (activeCard !== cards[bestIndex]) {
+      if (activeCard) activeCard.classList.remove("active");
+      activeCard = cards[bestIndex];
+      activeCard.classList.add("active");
+    }
     requestAnimationFrame(frame);
   }
   measure();
@@ -112,7 +138,7 @@
     offset -= e.clientX - dragX; dragX = e.clientX;
     if (Math.abs(e.clientX - dragStart) > 6) dragged = true;
   });
-  function endDrag() { dragX = null; targetFactor = 1; setTimeout(function () { dragged = false; }, 50); }
+  function endDrag() { dragX = null; targetFactor = carousel.matches(":hover") ? 0 : 1; setTimeout(function () { dragged = false; }, 50); }
   track.addEventListener("pointerup", endDrag);
   track.addEventListener("pointercancel", endDrag);
   track.style.touchAction = "pan-y";
@@ -494,18 +520,20 @@
   let smoothScrollTo = null;
   if (!REDUCED && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
     document.documentElement.classList.add("smooth");
-    const EASE = 0.08;             // menor = mais "manteiga"
-    let target = window.scrollY, current = target, raf = null;
+    const EASE = 0.14;
+    let target = window.scrollY, current = target, raf = null, previousFrame = performance.now();
     function maxScroll() { return document.documentElement.scrollHeight - window.innerHeight; }
-    function loop() {
-      current += (target - current) * EASE;
+    function loop(now) {
+      const blend = 1 - Math.pow(1 - EASE, Math.min(now - previousFrame, 50) / 16.67);
+      previousFrame = now;
+      current += (target - current) * blend;
       if (Math.abs(target - current) < 0.4) { current = target; raf = null; }
       else raf = requestAnimationFrame(loop);
       window.scrollTo(0, current);
     }
-    function start() { if (!raf) raf = requestAnimationFrame(loop); }
+    function start() { if (!raf) { previousFrame = performance.now(); raf = requestAnimationFrame(loop); } }
     window.addEventListener("wheel", function (e) {
-      if (e.ctrlKey) return;                       // zoom do navegador
+      if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
       e.preventDefault();
       let d = e.deltaY;
       if (e.deltaMode === 1) d *= 16; else if (e.deltaMode === 2) d *= window.innerHeight;

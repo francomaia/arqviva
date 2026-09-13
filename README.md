@@ -34,6 +34,7 @@ Todas são feitas em CSS + JS puro, sem bibliotecas, e desligam automaticamente 
 - títulos e citações entrando palavra por palavra; a headline da hero, letra por letra
 - scroll suave com inércia no desktop, barra de progresso de leitura e brilho seguindo o cursor
 - marquee infinito de módulos (arrastável, pausa no hover) e faixa de texto rolando antes da oferta
+- se o sistema estiver configurado para reduzir movimento, o botão **Ativar animações** permite habilitar os efeitos só neste site; a escolha fica salva no navegador
 - transições do quiz, do FAQ (altura animada) e microinterações nos botões e cards
 
 ## Testar localmente

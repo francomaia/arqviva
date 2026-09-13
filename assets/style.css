@@ -552,10 +552,10 @@ html.js [data-stagger] > * { transition-delay: var(--d, 0ms); }
 
 /* ---------- Texto por palavras: desfoque + subida em cascata ---------- */
 html.js [data-text] .w {
-  display: inline-block; opacity: 0; filter: blur(12px);
-  transform: translateY(.45em) rotate(1.5deg); transform-origin: left bottom;
-  transition: opacity .75s ease, filter .75s ease, transform .85s var(--ease-out);
-  transition-delay: calc(var(--d, 0ms) + var(--i, 0) * 42ms);
+  display: inline-block; opacity: 0; filter: blur(14px);
+  transform: translateY(.55em) scale(.97); transform-origin: left bottom;
+  transition: opacity .8s ease, filter .9s ease, transform .95s var(--ease-out);
+  transition-delay: calc(var(--d, 0ms) + var(--i, 0) * 48ms);
 }
 html.js [data-text].is-in .w { opacity: 1; filter: blur(0); transform: none; }
 /* palavra em destaque ganha um sublinhado que "desenha" */
@@ -705,6 +705,11 @@ html.js [data-parallax] img { transition: transform .1s linear; }
 .mod-card img:first-child { transition: transform 1.4s var(--ease-out); }
 .mod-card:hover img:first-child, .mod-card.active img:first-child { transform: scale(1.06); }
 .mod-card .mod-label { transition: font-size .45s var(--ease-out), bottom .45s var(--ease-out), left .45s var(--ease-out); }
+.mod-card.active .mod-label { animation: moduleTextIn .7s var(--ease-out) both; }
+@keyframes moduleTextIn {
+  from { opacity: .45; filter: blur(7px); transform: translateY(8px); }
+  to { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
 .mod-card .mod-icon { transition: transform .5s var(--ease-back); }
 .mod-card.active .mod-icon { transform: rotate(360deg) scale(1.2); }
 .carousel-arrow { transition: background .25s ease, transform .3s var(--ease-back); }
@@ -779,14 +784,23 @@ html.js [data-parallax] img { transition: transform .1s linear; }
 .scroll-cue { transition: opacity .4s ease; }
 .header.is-scrolled ~ .hero .scroll-cue { opacity: 0; pointer-events: none; }
 
+.motion-toggle {
+  position: fixed; left: 20px; bottom: 20px; z-index: 80;
+  padding: 10px 16px; border-radius: 999px;
+  background: var(--wine-2); color: var(--white);
+  font-size: 13px; font-weight: 700;
+  box-shadow: 0 6px 18px rgba(0,0,0,.2);
+}
+.motion-toggle:focus-visible { outline: 3px solid var(--rose); outline-offset: 3px; }
+
 /* ---------- Acessibilidade: movimento reduzido ---------- */
 @media (prefers-reduced-motion: reduce) {
-  html.js [data-text] .w, html.js [data-text] .c, .cursor-glow { display: inline; opacity: 1 !important; filter: none !important; transform: none !important; transition: none !important; }
-  .cursor-glow { display: none; }
-  html.js [data-reveal], html.js [data-stagger] > * { opacity: 1 !important; transform: none !important; filter: none !important; clip-path: none !important; transition: none !important; }
-  html.js [data-load], html.js [data-load] * { animation: none !important; opacity: 1 !important; transform: none !important; filter: none !important; }
-  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
-  html.js [data-parallax] img { transform: none !important; }
+  html:not(.motion-on).js [data-text] .w, html:not(.motion-on).js [data-text] .c { display: inline; opacity: 1 !important; filter: none !important; transform: none !important; transition: none !important; }
+  html:not(.motion-on) .cursor-glow { display: none; }
+  html:not(.motion-on).js [data-reveal], html:not(.motion-on).js [data-stagger] > * { opacity: 1 !important; transform: none !important; filter: none !important; clip-path: none !important; transition: none !important; }
+  html:not(.motion-on).js [data-load], html:not(.motion-on).js [data-load] * { animation: none !important; opacity: 1 !important; transform: none !important; filter: none !important; }
+  html:not(.motion-on), html:not(.motion-on) *, html:not(.motion-on) *::before, html:not(.motion-on) *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  html:not(.motion-on).js [data-parallax] img { transform: none !important; }
 }
 
 /* ============================================================
@@ -825,4 +839,4 @@ html.js [data-parallax] img { transition: transform .1s linear; }
 @keyframes ribbonMove { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @keyframes spinSlow { to { transform: rotate(360deg); } }
 @media (max-width: 760px) { .ribbon-track { font-size: 16px; gap: 26px; padding: 12px 0; animation-duration: 26s; } }
-@media (prefers-reduced-motion: reduce) { .ribbon-track { animation: none; } }
+@media (prefers-reduced-motion: reduce) { html:not(.motion-on) .ribbon-track { animation: none; } }
