@@ -29,12 +29,11 @@ assets/video/prova-2.mp4
 Antes de publicar, comprima (ex.: HandBrake, 1080p H.264) ou hospede no YouTube/Vimeo/Panda Video e troque as tags `<video>` pelo player do serviço.
 
 ## Animações
-Todas são feitas em CSS + JS puro, sem bibliotecas, e desligam automaticamente para quem usa "reduzir movimento" no sistema operacional:
+Todas são feitas em CSS + JS puro, sem bibliotecas, e ficam ativas por padrão:
 - surgimento ao rolar (IntersectionObserver) com desfoque e deslocamento por direção
 - títulos e citações entrando palavra por palavra; a headline da hero, letra por letra
 - scroll suave com inércia no desktop, barra de progresso de leitura e brilho seguindo o cursor
 - marquee infinito de módulos (arrastável, pausa no hover) e faixa de texto rolando antes da oferta
-- se o sistema estiver configurado para reduzir movimento, o botão **Ativar animações** permite habilitar os efeitos só neste site; a escolha fica salva no navegador
 - transições do quiz, do FAQ (altura animada) e microinterações nos botões e cards
 
 ## Testar localmente

@@ -4,30 +4,8 @@
 (function () {
   "use strict";
 
-  const OS_REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const motionParam = new URLSearchParams(window.location.search).get("animacoes");
-  let savedMotion = null;
-  try { savedMotion = localStorage.getItem("arqviva-motion"); } catch (e) { /* arquivo local sem storage */ }
-  const motionEnabled = motionParam === "on" || (motionParam !== "off" && savedMotion === "on");
-  const REDUCED = OS_REDUCED && !motionEnabled;
+  const REDUCED = false; // Animações sempre ativas neste site.
   document.documentElement.classList.add("js");
-  if (motionEnabled) document.documentElement.classList.add("motion-on");
-
-  if (OS_REDUCED) {
-    const motionToggle = document.createElement("button");
-    motionToggle.type = "button";
-    motionToggle.className = "motion-toggle";
-    motionToggle.textContent = motionEnabled ? "Reduzir animações" : "Ativar animações";
-    motionToggle.setAttribute("aria-pressed", String(motionEnabled));
-    motionToggle.addEventListener("click", function () {
-      const next = !motionEnabled;
-      try { localStorage.setItem("arqviva-motion", next ? "on" : "off"); } catch (e) { /* URL mantém a escolha */ }
-      const url = new URL(window.location.href);
-      url.searchParams.set("animacoes", next ? "on" : "off");
-      window.location.assign(url.toString());
-    });
-    document.body.appendChild(motionToggle);
-  }
 
   /* ---------- Links configuráveis ---------- */
   const LINKS = {
