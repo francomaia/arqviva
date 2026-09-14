@@ -38,8 +38,10 @@
       if (sound) sound.hidden = true;
       playVideo();
     }
-    play.addEventListener("click", function (e) { e.stopPropagation(); start(); });
-    box.addEventListener("click", function () { if (!box.classList.contains("playing")) start(); });
+    if (play) {
+      play.addEventListener("click", function (e) { e.stopPropagation(); start(); });
+      box.addEventListener("click", function () { if (!box.classList.contains("playing")) start(); });
+    }
     video.addEventListener("pause", function () { if (video.ended) reset(); });
     video.addEventListener("ended", reset);
     video.addEventListener("playing", function () {
@@ -61,7 +63,7 @@
     }
     function reset() {
       box.classList.remove("playing");
-      video.controls = false;
+      video.controls = video.autoplay;
       video.currentTime = 0;
       if (sound) sound.hidden = true;
     }
