@@ -23,11 +23,31 @@
     const play = box.querySelector(".play-btn");
     const sound = box.querySelector(".video-sound");
     const timer = box.querySelector(".video-timer");
+    let awaitingInteraction = false;
+
+    function clearInteraction() {
+      awaitingInteraction = false;
+      document.removeEventListener("click", resumeWithSound, true);
+      document.removeEventListener("keydown", resumeWithSound, true);
+    }
+    function resumeWithSound(e) {
+      if (e.type === "keydown" && e.key !== "Enter" && e.key !== " ") return;
+      // O player nativo e os depoimentos cuidam dos próprios cliques.
+      if (e.target instanceof Element && e.target.closest("video, .provas .video-box")) return;
+      clearInteraction();
+      video.muted = false;
+      playVideo();
+    }
 
     function playVideo() {
       const attempt = video.play();
-      if (attempt) attempt.catch(function () {
+      if (attempt) attempt.catch(function (error) {
         if (video.paused) { box.classList.remove("playing"); if (sound) sound.hidden = true; }
+        if (video.autoplay && error.name === "NotAllowedError" && !awaitingInteraction) {
+          awaitingInteraction = true;
+          document.addEventListener("click", resumeWithSound, true);
+          document.addEventListener("keydown", resumeWithSound, true);
+        }
       });
     }
 
@@ -45,6 +65,7 @@
     video.addEventListener("pause", function () { if (video.ended) reset(); });
     video.addEventListener("ended", reset);
     video.addEventListener("playing", function () {
+      clearInteraction();
       box.classList.add("playing");
       video.controls = true;
       if (sound) sound.hidden = !video.muted;
@@ -59,7 +80,7 @@
         timer.setAttribute("aria-valuenow", Math.round(remaining * 100));
       }
       ["loadedmetadata", "timeupdate", "seeking", "ended", "emptied"].forEach(function (event) { video.addEventListener(event, updateTimer); });
-      if (video.autoplay) playVideo();
+      if (video.autoplay) { video.muted = false; video.volume = 1; playVideo(); }
     }
     function reset() {
       box.classList.remove("playing");

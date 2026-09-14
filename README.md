@@ -18,7 +18,7 @@ Em `assets/script.js`, no topo, edite o objeto `LINKS`:
 - `whatsapp` – número no formato `https://wa.me/55DDDNUMERO`
 
 ## Vídeos
-O site usa as cópias H.264/AAC em `assets/video/compressed/`, incluídas no repositório. Os três arquivos originais em `assets/video/` são preservados localmente e ignorados pelo Git. A VSL tenta iniciar automaticamente sem som, sem botão de play sobreposto, com opção para ativar áudio e barra de tempo restante. Os controles nativos permanecem disponíveis, inclusive se o navegador bloquear o autoplay. Os depoimentos carregam quando o visitante inicia a reprodução.
+O site usa as cópias H.264/AAC em `assets/video/compressed/`, incluídas no repositório. Os três arquivos originais em `assets/video/` são preservados localmente e ignorados pelo Git. A VSL tenta iniciar automaticamente com som, sem botão de play sobreposto, com barra de tempo restante. Quando o navegador bloqueia autoplay com áudio, um clique/toque na página ou Enter/espaço inicia a reprodução com som. Os controles nativos permanecem disponíveis. Os depoimentos carregam quando o visitante inicia a reprodução.
 
 ```
 assets/video/compressed/vsl.mp4
