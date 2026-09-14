@@ -33,17 +33,19 @@
           <span class="h1-l2" data-text="words">e transformar seu escritório</span>
           <span class="h1-l3" data-text="chars">artesanal em<br>empresarial</span>
         </h1>
-        <p class="hero-sub">Bethânia Filizzola - Fundadora do ArqViva</p>
       </div>
       <div class="hero-video" data-load="video">
         <div class="video-box" data-video="assets/video/compressed/vsl.mp4">
-          <video playsinline preload="none" poster="assets/img/vsl-poster.jpg">
+          <video playsinline autoplay muted preload="metadata" poster="assets/img/vsl-poster.jpg">
             <source src="assets/video/compressed/vsl.mp4" type="video/mp4">
           </video>
           <button class="play-btn" aria-label="Assistir ao vídeo">
             <img src="assets/svg/play.svg" alt="">
           </button>
+          <button class="video-sound" aria-label="Ativar som do vídeo" hidden>Ativar som</button>
+          <div class="video-timer" role="progressbar" aria-label="Tempo restante do vídeo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><span></span></div>
         </div>
+        <p class="hero-sub">Bethânia Filizzola - Fundadora do ArqViva</p>
       </div>
     </div>
     <a href="#realidade" class="scroll-cue" data-load="cue" aria-label="Rolar para baixo">
@@ -117,9 +119,7 @@
       <a href="#oferta" class="btn btn-cta btn-red btn-shine" data-reveal="up" data-delay="150">VER COMO FUNCIONA</a>
 
       <p class="modulos-note" data-text="words" data-delay="250">
-        Daqui a algumas semanas quando problema pode <br>
-        voltar a bater na porta. Faz parte. <strong>O Arquitetando Processos <br>
-        está aqui para quando isso acontecer. E tem mais.</strong>
+        Os desafios voltam. <strong>O Arquitetando Processos está aqui para ajudar.</strong>
       </p>
     </div>
   </section>
@@ -130,7 +130,7 @@
       <div class="card card-wine quem-card" data-reveal="up">
         <h2 class="display quem-title" data-reveal="left" data-delay="150">QUEM ENSINA</h2>
         <div class="quem-grid">
-          <div class="quem-photo" data-reveal="clip" data-delay="200">
+          <div class="quem-photo" data-reveal="up" data-delay="200">
             <img src="assets/img/bethania.jpg" alt="Bethânia Filizzola" loading="lazy" decoding="async">
           </div>
           <div class="quem-text" data-stagger data-delay="300">

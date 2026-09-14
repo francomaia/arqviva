@@ -21,21 +21,88 @@
   document.querySelectorAll(".video-box").forEach(function (box) {
     const video = box.querySelector("video");
     const play = box.querySelector(".play-btn");
+    const sound = box.querySelector(".video-sound");
+    const timer = box.querySelector(".video-timer");
+
+    function playVideo() {
+      const attempt = video.play();
+      if (attempt) attempt.catch(function () {
+        if (video.paused) { box.classList.remove("playing"); if (sound) sound.hidden = true; }
+      });
+    }
 
     function start() {
       box.classList.add("playing");
       video.controls = true;
-      video.play();
+      video.muted = false;
+      if (sound) sound.hidden = true;
+      playVideo();
     }
     play.addEventListener("click", function (e) { e.stopPropagation(); start(); });
     box.addEventListener("click", function () { if (!box.classList.contains("playing")) start(); });
-    video.addEventListener("pause", function () { if (video.currentTime === 0 || video.ended) reset(); });
+    video.addEventListener("pause", function () { if (video.ended) reset(); });
     video.addEventListener("ended", reset);
+    video.addEventListener("playing", function () {
+      box.classList.add("playing");
+      video.controls = true;
+      if (sound) sound.hidden = !video.muted;
+    });
+    if (sound) sound.addEventListener("click", function (e) {
+      e.stopPropagation(); video.muted = false; video.controls = true; sound.hidden = true;
+    });
+    if (timer) {
+      function updateTimer() {
+        const remaining = Number.isFinite(video.duration) && video.duration > 0 ? Math.max(0, 1 - video.currentTime / video.duration) : 1;
+        timer.firstElementChild.style.transform = "scaleX(" + remaining + ")";
+        timer.setAttribute("aria-valuenow", Math.round(remaining * 100));
+      }
+      ["loadedmetadata", "timeupdate", "seeking", "ended", "emptied"].forEach(function (event) { video.addEventListener(event, updateTimer); });
+      if (video.autoplay) playVideo();
+    }
     function reset() {
       box.classList.remove("playing");
       video.controls = false;
       video.currentTime = 0;
+      if (sound) sound.hidden = true;
     }
+  });
+
+  /* Indicadores que acompanham hover, toque e teclado. */
+  document.querySelectorAll(".list, .stats").forEach(function (group) {
+    const items = Array.from(group.children);
+    let selected = items.find(function (item) { return item.classList.contains("active") || item.classList.contains("stat-white"); }) || items[0];
+    function select(item) {
+      selected = item;
+      items.forEach(function (entry) {
+        const active = entry === item;
+        entry.classList.toggle("active", active);
+        entry.setAttribute("aria-pressed", String(active));
+        const icon = entry.querySelector("img");
+        if (icon) icon.src = "assets/svg/" + ((group.classList.contains("list-dark") === active) ? "icon.svg" : "icon-dark.svg");
+      });
+      measure();
+    }
+    function measure() {
+      group.style.setProperty("--indicator-x", selected.offsetLeft + "px");
+      group.style.setProperty("--indicator-y", selected.offsetTop + "px");
+      group.style.setProperty("--indicator-w", selected.offsetWidth + "px");
+      group.style.setProperty("--indicator-h", selected.offsetHeight + "px");
+    }
+    items.forEach(function (item) {
+      item.tabIndex = 0; item.setAttribute("role", "button");
+      item.addEventListener("pointerenter", function (e) { if (e.pointerType !== "touch") select(item); });
+      item.addEventListener("click", function () { select(item); });
+      item.addEventListener("focus", function () { select(item); });
+      item.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(item); } });
+    });
+    group.classList.add("sliding-indicator");
+    select(selected);
+    if ("ResizeObserver" in window) {
+      const observer = new ResizeObserver(measure);
+      observer.observe(group);
+      items.forEach(function (item) { observer.observe(item); });
+    } else window.addEventListener("resize", measure);
+    if (document.fonts) document.fonts.ready.then(measure);
   });
 
   /* ---------- Carrossel de módulos ---------- */
