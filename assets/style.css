@@ -451,8 +451,8 @@ h2 { font-weight: 600; font-size: 35px; line-height: 1.05; }
   .list li { font-size: 15px; padding: 9px 14px; }
 
   .transformacao-card { grid-template-columns: 1fr; }
-  .transformacao-photo { height: 320px; margin-top: -22px; }
-  .transformacao-photo img { position: static; width: calc(100% - 36px); height: 320px; margin: 0 auto; }
+  .transformacao-photo { height: auto; margin-top: 0; padding: 18px 18px 0; }
+  .transformacao-photo img { position: static; width: 100%; height: auto; margin: 0 auto; object-fit: contain; object-position: center top; }
   .transformacao-text { padding: 26px 22px 24px; }
 
   .modulos .section-title { font-size: 32px; }
@@ -836,6 +836,7 @@ html.js [data-parallax] img { transition: transform .1s linear; }
 .video-timer span { display: block; height: 100%; background: var(--red-2); transform-origin: left; transition: transform .25s linear; }
 .mod-card .mod-label, .mod-card.active .mod-label { left: 14px; right: 14px; bottom: 16px; font-size: 18px; line-height: 1.12; overflow-wrap: anywhere; }
 .modulos-note { max-width: 620px; margin: 24px auto 0; font-size: 20px; line-height: 1.35; }
+@media (min-width: 761px) { .modulos-note { max-width: none; white-space: nowrap; } }
 .quem-grid { grid-template-columns: 280px minmax(0, 1fr); }
 .quem-photo { width: 100%; max-width: 280px; justify-self: center; }
 .quem-photo img { width: 100%; height: auto; object-fit: contain; }

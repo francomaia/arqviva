@@ -9,8 +9,8 @@
 
   /* ---------- Links configuráveis ---------- */
   const LINKS = {
-    aluno: "#",                      // área do aluno (Kiwify)
-    comprar: "#",                    // checkout
+    aluno: "https://dashboard.kiwify.com.br/courses", // login e cursos do aluno
+    comprar: "https://pay.kiwify.com.br/uca7qGd",     // checkout
     whatsapp: "https://api.whatsapp.com/send/?phone=5564999885321" // número do WhatsApp
   };
   document.getElementById("btn-aluno").href = LINKS.aluno;
@@ -94,7 +94,9 @@
   document.querySelectorAll(".list, .stats").forEach(function (group) {
     const items = Array.from(group.children);
     let selected = items.find(function (item) { return item.classList.contains("active") || item.classList.contains("stat-white"); }) || items[0];
-    function select(item) {
+    let manualUntil = 0, scrollFrame = null;
+    function select(item, manual) {
+      if (manual) manualUntil = performance.now() + 1400;
       selected = item;
       items.forEach(function (entry) {
         const active = entry === item;
@@ -113,10 +115,10 @@
     }
     items.forEach(function (item) {
       item.tabIndex = 0; item.setAttribute("role", "button");
-      item.addEventListener("pointerenter", function (e) { if (e.pointerType !== "touch") select(item); });
-      item.addEventListener("click", function () { select(item); });
-      item.addEventListener("focus", function () { select(item); });
-      item.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(item); } });
+      item.addEventListener("pointerenter", function (e) { if (e.pointerType !== "touch") select(item, true); });
+      item.addEventListener("click", function () { select(item, true); });
+      item.addEventListener("focus", function () { select(item, true); });
+      item.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(item, true); } });
     });
     group.classList.add("sliding-indicator");
     select(selected);
@@ -126,6 +128,30 @@
       items.forEach(function (item) { observer.observe(item); });
     } else window.addEventListener("resize", measure);
     if (document.fonts) document.fonts.ready.then(measure);
+
+    /* No mobile, o destaque percorre a lista conforme ela cruza a tela. */
+    if (group.classList.contains("list")) {
+      function followScroll() {
+        scrollFrame = null;
+        if (!window.matchMedia("(max-width: 760px)").matches || performance.now() < manualUntil) return;
+        const rect = group.getBoundingClientRect();
+        if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+        const focus = window.innerHeight * 0.62;
+        let closest = items[0], distance = Infinity;
+        items.forEach(function (item) {
+          const itemRect = item.getBoundingClientRect();
+          const nextDistance = Math.abs(itemRect.top + itemRect.height / 2 - focus);
+          if (nextDistance < distance) { closest = item; distance = nextDistance; }
+        });
+        select(closest, false);
+      }
+      function queueFollowScroll() {
+        if (scrollFrame === null) scrollFrame = requestAnimationFrame(followScroll);
+      }
+      window.addEventListener("scroll", queueFollowScroll, { passive: true });
+      window.addEventListener("resize", queueFollowScroll);
+      queueFollowScroll();
+    }
   });
 
   /* ---------- Carrossel de módulos ---------- */
