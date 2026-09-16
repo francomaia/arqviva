@@ -17,77 +17,158 @@
   document.getElementById("btn-comprar").href = LINKS.comprar;
   document.getElementById("btn-whatsapp").href = LINKS.whatsapp;
 
-  /* ---------- Vídeos (VSL + provas sociais) ---------- */
-  document.querySelectorAll(".video-box").forEach(function (box) {
+  /* ---------- Vídeos ---------- */
+
+  /*
+   * A barra da VSL cresce depressa no começo e vai arrastando no fim.
+   * O expoente abaixo de 1 deixa a curva côncava: com 10% assistido a barra já
+   * marca cerca de 45%, na metade marca 77%, e os últimos minutos quase não
+   * andam. Diminua o número para exagerar o efeito, aumente para suavizar.
+   */
+  const CURVA_PROGRESSO = 0.38;
+
+  function configurarVSL(box) {
     const video = box.querySelector("video");
-    const play = box.querySelector(".play-btn");
-    const sound = box.querySelector(".video-sound");
-    const timer = box.querySelector(".video-timer");
-    let awaitingInteraction = false;
+    const palco = box.closest(".video-palco");
+    const timer = palco.querySelector(".video-timer");
+    const barra = timer.querySelector("span");
+    const aviso = box.querySelector(".video-sound");
+    const btnPlay = box.querySelector(".video-toggle");
+    const btnSom = box.querySelector(".video-mudo");
+    const btnTela = box.querySelector(".video-tela");
+    let esperandoGesto = false;
 
-    function clearInteraction() {
-      awaitingInteraction = false;
-      document.removeEventListener("click", resumeWithSound, true);
-      document.removeEventListener("keydown", resumeWithSound, true);
+    function sincronizarSom() {
+      box.classList.toggle("com-som", !video.muted);
+      btnSom.setAttribute("aria-label", video.muted ? "Ativar som" : "Desativar som");
+      if (aviso) aviso.hidden = !(video.muted && !video.paused);
     }
-    function resumeWithSound(e) {
-      if (e.type === "keydown" && e.key !== "Enter" && e.key !== " ") return;
-      // O player nativo e os depoimentos cuidam dos próprios cliques.
-      if (e.target instanceof Element && e.target.closest("video, .provas .video-box")) return;
-      clearInteraction();
+
+    function liberarSom(evento) {
+      if (evento && evento.type === "keydown" && evento.key !== "Enter" && evento.key !== " ") return;
+      esperandoGesto = false;
+      document.removeEventListener("click", liberarSom, true);
+      document.removeEventListener("keydown", liberarSom, true);
       video.muted = false;
-      playVideo();
+      sincronizarSom();
+      tocar();
     }
 
-    function playVideo() {
-      const attempt = video.play();
-      if (attempt) attempt.catch(function (error) {
-        if (video.paused) { box.classList.remove("playing"); if (sound) sound.hidden = true; }
-        if (video.autoplay && error.name === "NotAllowedError" && !awaitingInteraction) {
-          awaitingInteraction = true;
-          document.addEventListener("click", resumeWithSound, true);
-          document.addEventListener("keydown", resumeWithSound, true);
+    function tocar() {
+      const tentativa = video.play();
+      if (!tentativa) return;
+      tentativa.catch(function (erro) {
+        if (erro.name !== "NotAllowedError") return;
+        // O navegador barrou o som. Toca mudo e espera um clique para liberar.
+        if (!video.muted) {
+          video.muted = true;
+          sincronizarSom();
+          tocar();
+          return;
+        }
+        if (!esperandoGesto) {
+          esperandoGesto = true;
+          document.addEventListener("click", liberarSom, true);
+          document.addEventListener("keydown", liberarSom, true);
         }
       });
     }
 
-    function start() {
+    function atualizarBarra() {
+      const duracao = video.duration;
+      const assistido = Number.isFinite(duracao) && duracao > 0
+        ? Math.min(1, Math.max(0, video.currentTime / duracao))
+        : 0;
+      const mostrado = video.ended ? 1 : Math.pow(assistido, CURVA_PROGRESSO);
+      barra.style.transform = "scaleX(" + mostrado + ")";
+      timer.setAttribute("aria-valuenow", Math.round(mostrado * 100));
+    }
+
+    function alternar() {
+      if (video.paused) tocar();
+      else video.pause();
+    }
+
+    btnPlay.addEventListener("click", function (e) { e.stopPropagation(); alternar(); });
+    video.addEventListener("click", alternar);
+    btnSom.addEventListener("click", function (e) {
+      e.stopPropagation();
+      video.muted = !video.muted;
+      sincronizarSom();
+    });
+    btnTela.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (document.fullscreenElement) { document.exitFullscreen(); return; }
+      // Tela cheia no palco inteiro: a barra vai junto e o player nativo,
+      // que mostraria a duração e deixaria avançar, não aparece.
+      if (palco.requestFullscreen) palco.requestFullscreen();
+      else if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+    });
+
+    // Sem controles nativos as setas não avançam o vídeo, mas o bloqueio
+    // garante que nem pelo teclado dá para pular trecho.
+    const TECLAS_BLOQUEADAS = ["ArrowLeft", "ArrowRight", "Home", "End", "PageUp", "PageDown"];
+    box.addEventListener("keydown", function (e) {
+      if (TECLAS_BLOQUEADAS.indexOf(e.key) !== -1) e.preventDefault();
+    });
+    video.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+
+    video.addEventListener("play", function () {
+      box.classList.add("playing");
+      btnPlay.setAttribute("aria-label", "Pausar vídeo");
+    });
+    video.addEventListener("pause", function () {
+      box.classList.remove("playing");
+      btnPlay.setAttribute("aria-label", "Reproduzir vídeo");
+      sincronizarSom();
+    });
+    video.addEventListener("playing", sincronizarSom);
+    video.addEventListener("volumechange", sincronizarSom);
+    ["loadedmetadata", "timeupdate", "seeked", "ended", "emptied"].forEach(function (evento) {
+      video.addEventListener(evento, atualizarBarra);
+    });
+    if (aviso) aviso.addEventListener("click", function (e) { e.stopPropagation(); liberarSom(); });
+
+    video.volume = 1;
+    video.muted = false;
+    sincronizarSom();
+    atualizarBarra();
+    tocar();
+  }
+
+  /* Depoimentos seguem com o player nativo, que ali não atrapalha. */
+  function configurarDepoimento(box) {
+    const video = box.querySelector("video");
+    const play = box.querySelector(".play-btn");
+
+    function iniciar() {
       box.classList.add("playing");
       video.controls = true;
       video.muted = false;
-      if (sound) sound.hidden = true;
-      playVideo();
+      const tentativa = video.play();
+      if (tentativa) tentativa.catch(function () { box.classList.remove("playing"); });
     }
+
     if (play) {
-      play.addEventListener("click", function (e) { e.stopPropagation(); start(); });
-      box.addEventListener("click", function () { if (!box.classList.contains("playing")) start(); });
+      play.addEventListener("click", function (e) { e.stopPropagation(); iniciar(); });
+      box.addEventListener("click", function () {
+        if (!box.classList.contains("playing")) iniciar();
+      });
     }
-    video.addEventListener("pause", function () { if (video.ended) reset(); });
-    video.addEventListener("ended", reset);
     video.addEventListener("playing", function () {
-      clearInteraction();
       box.classList.add("playing");
       video.controls = true;
-      if (sound) sound.hidden = !video.muted;
     });
-    if (sound) sound.addEventListener("click", function (e) {
-      e.stopPropagation(); video.muted = false; video.controls = true; sound.hidden = true;
-    });
-    if (timer) {
-      function updateTimer() {
-        const remaining = Number.isFinite(video.duration) && video.duration > 0 ? Math.max(0, 1 - video.currentTime / video.duration) : 1;
-        timer.firstElementChild.style.transform = "scaleX(" + remaining + ")";
-        timer.setAttribute("aria-valuenow", Math.round(remaining * 100));
-      }
-      ["loadedmetadata", "timeupdate", "seeking", "ended", "emptied"].forEach(function (event) { video.addEventListener(event, updateTimer); });
-      if (video.autoplay) { video.muted = false; video.volume = 1; playVideo(); }
-    }
-    function reset() {
+    video.addEventListener("ended", function () {
       box.classList.remove("playing");
-      video.controls = video.autoplay;
+      video.controls = false;
       video.currentTime = 0;
-      if (sound) sound.hidden = true;
-    }
+    });
+  }
+
+  document.querySelectorAll(".video-box").forEach(function (box) {
+    if (box.classList.contains("video-vsl")) configurarVSL(box);
+    else configurarDepoimento(box);
   });
 
   /* Indicadores que acompanham hover, toque e teclado. */

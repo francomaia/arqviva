@@ -93,6 +93,8 @@ h2 { font-weight: 600; font-size: 35px; line-height: 1.05; }
 .quote strong { font-weight: 800; }
 .quote-light { color: var(--white); }
 .quote-wine { color: var(--wine); }
+/* Quebra de linha que só aparece no mobile */
+.br-mobile { display: none; }
 
 /* ---------- Botões ---------- */
 .btn {
@@ -441,6 +443,9 @@ h2 { font-weight: 600; font-size: 35px; line-height: 1.05; }
   h2 { font-size: 28px; }
   .section-title { font-size: 36px; }
   .eyebrow { font-size: 11px; }
+  .br-mobile { display: inline; }
+  /* Mantém a citação em duas linhas mesmo em telas estreitas */
+  .quote-light { font-size: clamp(14px, 5.7vw - 6.5px, 18px); }
 
   .realidade { padding-top: 110px; }
   .realidade-card { grid-template-columns: 1fr; margin-top: 0; }
@@ -832,8 +837,55 @@ html.js [data-parallax] img { transition: transform .1s linear; }
 .hero-sub { font-size: 11px; line-height: 1.4; margin-top: 14px; padding-left: 0; text-align: center; }
 .video-sound { position: absolute; bottom: 56px; left: 50%; transform: translateX(-50%); z-index: 4; padding: 10px 16px; border-radius: 999px; background: var(--wine); color: #fff; font-size: 14px; white-space: nowrap; }
 .video-sound[hidden] { display: none; }
-.video-timer { position: absolute; top: 0; left: 0; right: 0; height: 6px; background: rgba(255,255,255,.35); pointer-events: none; z-index: 4; }
-.video-timer span { display: block; height: 100%; background: var(--red-2); transform-origin: left; transition: transform .25s linear; }
+/* Barra de progresso abaixo do vídeo. Sem tempo, sem duração e sem avançar. */
+.video-palco { display: flex; flex-direction: column; gap: 10px; }
+.video-timer {
+  position: relative; height: 6px; border-radius: 999px; overflow: hidden;
+  background: rgba(0,0,0,.12); pointer-events: none;
+}
+.video-timer span {
+  display: block; height: 100%; width: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--wine-2), var(--red-2));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .3s linear;
+}
+.bg-wine .video-timer, .bg-black .video-timer { background: rgba(255,255,255,.22); }
+
+/* Controles próprios: reproduzir, som e tela cheia. Nada de linha do tempo. */
+.video-acoes {
+  position: absolute; right: 10px; bottom: 10px; z-index: 5;
+  display: flex; gap: 6px;
+  opacity: 0; transform: translateY(6px); transition: opacity .25s ease, transform .25s ease;
+}
+.video-box:hover .video-acoes,
+.video-box:focus-within .video-acoes,
+.video-box:not(.playing) .video-acoes { opacity: 1; transform: none; }
+.video-btn {
+  width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+  background: rgba(15,15,15,.62); color: #fff; backdrop-filter: blur(4px);
+  transition: background .2s ease, transform .2s ease;
+}
+.video-btn:hover { background: var(--wine-2); transform: scale(1.06); }
+.video-btn .ic { width: 19px; height: 19px; fill: currentColor; }
+.video-vsl .ic-play, .video-vsl.playing .ic-pause { display: block; }
+.video-vsl.playing .ic-play, .video-vsl .ic-pause { display: none; }
+.video-vsl .ic-som { display: none; }
+.video-vsl .ic-sem-som { display: block; }
+.video-vsl.com-som .ic-som { display: block; }
+.video-vsl.com-som .ic-sem-som { display: none; }
+.video-vsl video { cursor: pointer; }
+
+/* Em tela cheia o palco inteiro vai junto, então a barra continua visível
+   e o player nativo (com linha do tempo) não aparece. */
+.video-palco:fullscreen {
+  background: #0f0f0f; padding: 24px; justify-content: center; gap: 14px;
+}
+.video-palco:fullscreen .video-box {
+  width: auto; height: auto; max-height: 88vh; aspect-ratio: auto;
+  animation: none; transform: none; box-shadow: none;
+}
+.video-palco:fullscreen .video-box video { height: 100%; max-height: 88vh; object-fit: contain; }
+.video-palco:fullscreen .video-timer { max-width: 900px; width: 100%; margin: 0 auto; }
 .mod-card .mod-label, .mod-card.active .mod-label { left: 14px; right: 14px; bottom: 16px; font-size: 18px; line-height: 1.12; overflow-wrap: anywhere; }
 .modulos-note { max-width: 620px; margin: 24px auto 0; font-size: 20px; line-height: 1.35; }
 @media (min-width: 761px) { .modulos-note { max-width: none; white-space: nowrap; } }
