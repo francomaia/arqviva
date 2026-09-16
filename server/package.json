@@ -1,0 +1,13 @@
+{
+  "name": "arqviva-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Webhooks da Kiwify e painel de vendas e reembolsos do ArqViva",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node src/server.js",
+    "webhook:register": "node src/register-webhook.js",
+    "test:signature": "node src/selftest.js"
+  }
+}

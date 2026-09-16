@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Painel de vendas | ArqViva</title>
+  <link rel="stylesheet" href="/painel/painel.css">
+</head>
+<body class="viz-root">
+
+  <header class="topo">
+    <div class="marca">
+      <span class="marca-nome">ArqViva</span>
+      <span class="marca-sub">Vendas e reembolsos</span>
+    </div>
+    <div class="filtros">
+      <div class="periodo" role="group" aria-label="Período">
+        <button type="button" data-dias="7">7 dias</button>
+        <button type="button" data-dias="30">30 dias</button>
+        <button type="button" data-dias="90" class="ativo">90 dias</button>
+        <button type="button" data-dias="365">12 meses</button>
+      </div>
+      <label class="campo">De <input type="date" id="inicio"></label>
+      <label class="campo">Até <input type="date" id="fim"></label>
+      <button type="button" id="atualizar" class="botao">Atualizar</button>
+    </div>
+  </header>
+
+  <div id="avisos" class="avisos" hidden></div>
+  <div id="erro" class="erro" hidden></div>
+
+  <main>
+    <section class="cartoes" aria-label="Resumo do período">
+      <article class="cartao destaque">
+        <h2>Receita aprovada</h2>
+        <p class="valor" id="kpi-receita">—</p>
+        <p class="apoio" id="kpi-ticket">—</p>
+      </article>
+      <article class="cartao">
+        <h2>Vendas aprovadas</h2>
+        <p class="valor" id="kpi-aprovadas">—</p>
+        <p class="apoio" id="kpi-pendentes">—</p>
+      </article>
+      <article class="cartao">
+        <h2>Reembolsos</h2>
+        <p class="valor" id="kpi-reembolsos">—</p>
+        <p class="apoio" id="kpi-reembolsado">—</p>
+      </article>
+      <article class="cartao">
+        <h2>Chargebacks</h2>
+        <p class="valor" id="kpi-chargebacks">—</p>
+        <p class="apoio" id="kpi-recusadas">—</p>
+      </article>
+      <article class="cartao">
+        <h2>Taxa de reembolso</h2>
+        <p class="valor" id="kpi-taxa">—</p>
+        <p class="apoio">Reembolsos e chargebacks sobre vendas concluídas</p>
+      </article>
+    </section>
+
+    <section class="painel-grafico" aria-label="Receita por dia">
+      <div class="cabecalho-secao">
+        <h2>Receita líquida por dia</h2>
+        <button type="button" id="alternar-tabela" class="link">Ver como tabela</button>
+      </div>
+      <div id="grafico" class="grafico"></div>
+      <div id="grafico-tabela" class="tabela-rolagem" hidden></div>
+    </section>
+
+    <section class="recuperacao" aria-label="Recuperação de carrinho">
+      <div class="cabecalho-secao"><h2>Carrinho abandonado</h2></div>
+      <div class="funil">
+        <div class="etapa"><span class="numero" id="fn-abandonados">—</span><span class="rotulo">Abandonos recebidos</span></div>
+        <div class="etapa"><span class="numero" id="fn-enviados">—</span><span class="rotulo">WhatsApp enviados</span></div>
+        <div class="etapa"><span class="numero" id="fn-recuperados">—</span><span class="rotulo">Compraram depois</span></div>
+        <div class="etapa"><span class="numero" id="fn-fila">—</span><span class="rotulo">Na fila agora</span></div>
+      </div>
+      <p class="apoio" id="fn-observacao"></p>
+    </section>
+
+    <section class="painel-tabela" aria-label="Vendas do período">
+      <div class="cabecalho-secao">
+        <h2>Vendas <span class="contagem" id="contagem-vendas"></span></h2>
+        <label class="campo">Situação
+          <select id="filtro-status">
+            <option value="">Todas</option>
+            <option value="paid">Aprovadas</option>
+            <option value="refunded">Reembolsadas</option>
+            <option value="chargedback">Chargeback</option>
+            <option value="refused">Recusadas</option>
+            <option value="waiting_payment">Aguardando pagamento</option>
+          </select>
+        </label>
+      </div>
+      <div class="tabela-rolagem">
+        <table id="tabela-vendas">
+          <thead>
+            <tr><th>Data</th><th>Cliente</th><th>Produto</th><th>Método</th><th>Situação</th><th class="num">Valor</th></tr>
+          </thead>
+          <tbody><tr><td colspan="6" class="vazio">Carregando…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="painel-eventos" aria-label="Eventos recebidos">
+      <div class="cabecalho-secao"><h2>Últimos eventos do webhook</h2></div>
+      <div class="tabela-rolagem">
+        <table id="tabela-eventos">
+          <thead>
+            <tr><th>Recebido</th><th>Evento</th><th>Cliente</th><th>Detalhe</th></tr>
+          </thead>
+          <tbody><tr><td colspan="4" class="vazio">Carregando…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="rodape">
+    <span>Dados lidos da API da Kiwify. Este painel é somente leitura e não emite reembolsos.</span>
+  </footer>
+
+  <div id="dica" class="dica" hidden role="status"></div>
+
+  <script src="/painel/painel.js"></script>
+</body>
+</html>
